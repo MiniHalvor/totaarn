@@ -1,4 +1,25 @@
-<h1>Welcome to SvelteKit</h1>
-<p>
-    Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
-</p>
+<!-- src/routes/+page.svelte -->
+<script>
+    export let data;
+  </script>
+  
+  <style>
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem;
+      text-align: center;
+    }
+  
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+  
+  <div class="container">
+    <h1>Velkommen til Janus: To tårn</h1>
+    <p>Bli med på turnering</p>
+    <img src="/chess-club.jpg" alt="Chess Club">
+  </div>
+  
