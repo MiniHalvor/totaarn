@@ -20,6 +20,6 @@
   <div class="container">
     <h1>Velkommen til Janus: To tårn</h1>
     <p>Bli med på turnering</p>
-    <img src="/chess-club.jpg" alt="Chess Club">
+    <img src="favicon.png" alt="Chess KLØBB">
   </div>
   
