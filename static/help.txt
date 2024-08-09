@@ -1,0 +1,4 @@
+Husk: Bilder og statiske assets legges i static foldern.
+
+git status -> sier seg selv
+git 
