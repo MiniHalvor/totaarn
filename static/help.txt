@@ -20,3 +20,10 @@ Finder:
 
 cmd + shift + . -> vis skjulte filer, greit hvis du har fucka opp git
 
+
+
+Chrome:
+
+cmd + option + j -> javascript konsoll i chrome. 
+Skriv document.title = "navn" for å endre navn på tabbem. 
+Veldig greit hvertfall for chatgpt
