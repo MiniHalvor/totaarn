@@ -24,6 +24,9 @@ cmd + shift + . -> vis skjulte filer, greit hvis du har fucka opp git
 
 Chrome:
 
-cmd + option + j -> javascript konsoll i chrome. 
-Skriv document.title = "navn" for å endre navn på tabbem. 
-Veldig greit hvertfall for chatgpt
+cmd + option + j -> javascript konsoll i chrome. Skriv document.title = "navn" for å endre navn på tabbem. Veldig greit hvertfall for chatgpt
+cmd+t -> åpne ny tab
+control + tab -> gå til fanen til høyre
+control + shift + tab -> Gå til fanen til venstre
+cmd + *1-9* ->  for å gå til en spesifikk fane
+cmd + w -> lukk tab
