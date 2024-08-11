@@ -1,6 +1,6 @@
 # Janus: To Tårn
 
-Indøks helt egne sjakklubb, må såklart ha en nettside. Dessuten er web dev <sb>gøy</b>
+Indøks helt egne sjakklubb, må såklart ha en nettside. <i>Dessuten</i> er web dev **gøy**
 
 ## Mål med siden
 
