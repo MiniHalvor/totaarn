@@ -21,6 +21,11 @@ Finder:
 cmd + shift + . -> vis skjulte filer, greit hvis du har fucka opp git
 
 
+MacOS:
+
+Fn + f -> toggle fullscreen for window
+
+
 
 Chrome:
 
