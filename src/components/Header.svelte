@@ -13,7 +13,7 @@
 		(y > 0 ? 'py-4 bg-slate-950 border-violet-950' : 'py-6 bg-transparent border-transparent ')}
 >
 	<h1 class="font-medium">
-		<a href="#">
+		<a href="#" class="duration-200 hover:text-3xl">
 			<b class="font-bold poppins"> Janus: </b> To tårn
 		</a>
 	</h1>
