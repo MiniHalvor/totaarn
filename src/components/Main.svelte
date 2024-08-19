@@ -25,7 +25,7 @@
 			>
 		</div>
         <div class="relative shadow-2xl grid place-items-center">
-            <img src={"JTT-logo.png"} alt="sexy bilde av arthur" class="object-cover z-[2] max-h-[70vh]"/>
+            <img src={"JTT-logo.png"} alt="logo til to tårn" class="object-cover z-[2] max-h-[70vh]"/>
         </div>
 	</section>
 </main>
