@@ -1,5 +1,5 @@
 <script>
-	// Defining the initial state of the board 
+	// Defining the initial state of the board
 	const initialBoard = [
 		['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
 		['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
@@ -15,6 +15,7 @@
 
 	// Reactive state, changes as the game progress
 	let board = initialBoard;
+	let debug = 'this is for debugging';
 
 	// Mapping pieces to image file paths
 	const pieceSymbols = {
@@ -42,7 +43,11 @@
 		if (selectedPiece) {
 			// Check if the piece is being moved to a different square
 			if (selectedFrom.row !== rowIndex || selectedFrom.col !== colIndex) {
-				// Move the piece to the new location
+				const targetPiece = board[rowIndex][colIndex];
+				if (targetPiece && targetPiece.toLowerCase() === 'k'){
+					console.log("cannot capture king");
+				} else {
+				// checks if the piece it moves to
 				if (
 					!(whitePieces.includes(selectedPiece)
 						? whitePieces.includes(board[rowIndex][colIndex])
@@ -50,7 +55,7 @@
 				) {
 					if (selectedPiece.toLowerCase() === 'p') {
 						//hvis det er bonde
-						const pawnDirection = selectedPiece === 'p' ? 1 : -1; // Direction of pawn movement
+						const pawnDirection = selectedPiece === 'p' ? 1 : -1;
 
 						const isFirstMove = selectedFrom.row % 5 === 1;
 						const pawnDistance = (rowIndex - selectedFrom.row) * pawnDirection;
@@ -87,32 +92,274 @@
 					} else if (selectedPiece.toLowerCase() === 'r') {
 						//Logikken her er lagd på søvnmangel. Logger ut nå. 02:51.
 
-						// let rookSpaceUp = 0;
-						// const rookSpaceDown = 0;
-						// const rookSpaceLeft = 0;
-						// const rookSpaceRight = 0;
-						// for (let index = selectedFrom.row; index < board[selectedFrom.col].length; index++) {
-						//     const element = board[index][selectedFrom.col];
-						//     if (selectedPiece==='r'){
-						//         if (element===null){
-						//             rookSpaceUp++;
-						//         } else if (whitePieces.includes(element)){
-						//             rookSpaceUp++;
-						//             break;
-						//         }
-						//     } else {
+						let maxDistance = 0;
+						let rookDirection =
+							selectedFrom.row === rowIndex
+								? colIndex < selectedFrom.col //if on the same row
+									? 'left'
+									: 'right'
+								: rowIndex < selectedFrom.row //if on the same column
+									? 'up'
+									: 'down';
 
-						//     }
+						let distance = Math.abs(
+							rowIndex === selectedFrom.row
+								? colIndex - selectedFrom.col
+								: rowIndex - selectedFrom.row
+						);
+						switch (rookDirection) {
+							case 'left':
+								for (let index = selectedFrom.col - 1; index > -1; index--) {
+									const element = board[selectedFrom.row][index];
+									if (element === null) {
+										maxDistance++;
+									}
+									if (
+										selectedPiece === 'r'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
+									) {
+										maxDistance++;
+										break;
+									}
+									if (
+										selectedPiece === 'r'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
+									) {
+										break;
+									}
+									debug += element;
+								}
+								break;
+							case 'right':
+								for (let index = selectedFrom.col + 1; index < 8; index++) {
+									const element = board[selectedFrom.row][index];
+									if (element === null) {
+										maxDistance++;
+									}
+									if (
+										selectedPiece === 'r'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
+									) {
+										maxDistance++;
+										break;
+									}
+									if (
+										selectedPiece === 'r'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
+									) {
+										break;
+									}
+									debug += element;
+								}
+								break;
+							case 'down':
+								for (let index = selectedFrom.row + 1; index < 8; index++) {
+									const element = board[index][selectedFrom.col];
+									if (element === null) {
+										maxDistance++;
+									}
+									if (
+										selectedPiece === 'r'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
+									) {
+										maxDistance++;
+										break;
+									}
+									if (
+										selectedPiece === 'r'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
+									) {
+										break;
+									}
+									debug += element;
+								}
+								break;
+							case 'up':
+								for (let index = selectedFrom.row - 1; index > -1; index--) {
+									const element = board[index][selectedFrom.col];
+									if (element === null) {
+										maxDistance++;
+									}
+									if (
+										selectedPiece === 'r'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
+									) {
+										maxDistance++;
+										break;
+									}
+									if (
+										selectedPiece === 'r'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
+									) {
+										break;
+									}
+									debug += element;
+								}
+								break;
 
-						// }
-						board[rowIndex][colIndex] = selectedPiece;
-						board[selectedFrom.row][selectedFrom.col] = null;
+							default:
+								break;
+						}
+						debug +=
+							' distance: ' +
+							distance +
+							' max dsitance: ' +
+							maxDistance +
+							' direction: ' +
+							rookDirection; //debugging
+						let sameColOrSameRow = rowIndex === selectedFrom.row || colIndex === selectedFrom.col;
+
+						if (sameColOrSameRow && distance <= maxDistance) {
+							board[rowIndex][colIndex] = selectedPiece;
+							board[selectedFrom.row][selectedFrom.col] = null;
+						}
 					} else if (selectedPiece.toLowerCase() === 'n') {
-						board[rowIndex][colIndex] = selectedPiece;
-						board[selectedFrom.row][selectedFrom.col] = null;
+						let distanceX = Math.abs(colIndex - selectedFrom.col);
+						let distanceY = Math.abs(rowIndex - selectedFrom.row);
+						let distance = Math.max(distanceX, distanceY);
+
+						if (distance === 2 && distanceX != distanceY && distanceX != 0 && distanceY != 0) {
+							board[rowIndex][colIndex] = selectedPiece;
+							board[selectedFrom.row][selectedFrom.col] = null;
+						}
 					} else if (selectedPiece.toLowerCase() === 'b') {
-						board[rowIndex][colIndex] = selectedPiece;
-						board[selectedFrom.row][selectedFrom.col] = null;
+						let maxDistance = 0;
+						let bishopDirection =
+							colIndex < selectedFrom.col
+								? rowIndex < selectedFrom.row //if on the same row
+									? 'leftUp'
+									: 'leftDown'
+								: rowIndex < selectedFrom.row //if on the same column
+									? 'rightUp'
+									: 'rightDown';
+						let distance = Math.abs(colIndex - selectedFrom.col);
+						switch (bishopDirection) {
+							case 'leftUp':
+								for (let indexRow = selectedFrom.row - 1; indexRow > -1; indexRow--) {
+									let indexCol = selectedFrom.col - 1;
+									const element = board[indexRow][indexCol];
+									if (element === null) {
+										maxDistance++;
+									}
+									if (
+										selectedPiece === 'b'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
+									) {
+										maxDistance++;
+										break;
+									}
+									if (
+										selectedPiece === 'b'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
+									) {
+										break;
+									}
+									debug += element;
+									if (indexCol > 0) {
+										indexCol--;
+									} else {
+										break;
+									}
+								}
+								break;
+							// 	case 'rightUp':
+							// 		for (let index = selectedFrom.col + 1; index < 8; index++) {
+							// 			const element = board[index][index];
+							// 			if (element === null) {
+							// 				maxDistance++;
+							// 			}
+							// 			if (
+							// 				selectedPiece === 'b'
+							// 					? whitePieces.includes(element)
+							// 					: blackPieces.includes(element)
+							// 			) {
+							// 				maxDistance++;
+							// 				break;
+							// 			}
+							// 			if (
+							// 				selectedPiece === 'b'
+							// 					? blackPieces.includes(element)
+							// 					: whitePieces.includes(element)
+							// 			) {
+							// 				break;
+							// 			}
+							// 			debug += element;
+							// 		}
+							// 		break;
+							// 	case 'leftDown':
+							// 		for (let index = selectedFrom.row + 1; index < 8; index++) {
+							// 			const element = board[index][index];
+							// 			if (element === null) {
+							// 				maxDistance++;
+							// 			}
+							// 			if (
+							// 				selectedPiece === 'b'
+							// 					? whitePieces.includes(element)
+							// 					: blackPieces.includes(element)
+							// 			) {
+							// 				maxDistance++;
+							// 				break;
+							// 			}
+							// 			if (
+							// 				selectedPiece === 'b'
+							// 					? blackPieces.includes(element)
+							// 					: whitePieces.includes(element)
+							// 			) {
+							// 				break;
+							// 			}
+							// 			debug += element;
+							// 		}
+							// 		break;
+							// 	case 'leftDown':
+							// 		for (let index = selectedFrom.row - 1; index > -1; index--) {
+							// 			const element = board[index][index];
+							// 			if (element === null) {
+							// 				maxDistance++;
+							// 			}
+							// 			if (
+							// 				selectedPiece === 'b'
+							// 					? whitePieces.includes(element)
+							// 					: blackPieces.includes(element)
+							// 			) {
+							// 				maxDistance++;
+							// 				break;
+							// 			}
+							// 			if (
+							// 				selectedPiece === 'b'
+							// 					? blackPieces.includes(element)
+							// 					: whitePieces.includes(element)
+							// 			) {
+							// 				break;
+							// 			}
+							// 			debug += element;
+							// 		}
+							// 		break;
+
+							default:
+								break;
+						}
+						debug +=
+							' distance: ' +
+							distance +
+							' max dsitance: ' +
+							maxDistance +
+							' direction: ' +
+							bishopDirection; //debugging
+
+						if (distance <= maxDistance) {
+							board[rowIndex][colIndex] = selectedPiece;
+							board[selectedFrom.row][selectedFrom.col] = null;
+						}
 					} else if (selectedPiece.toLowerCase() === 'q') {
 						board[rowIndex][colIndex] = selectedPiece;
 						board[selectedFrom.row][selectedFrom.col] = null;
@@ -121,7 +368,7 @@
 						board[selectedFrom.row][selectedFrom.col] = null;
 					}
 				}
-			}
+			}}
 			// Reset selection
 			selectedPiece = null;
 			selectedFrom = { row: null, col: null };
@@ -133,9 +380,11 @@
 	};
 </script>
 
-<main class="flex flex-row items-center justify-center p-4 h-full">
+<main class="flex md:flex-row sm:flex-col items-center justify-center p-4 h-full">
 	<!-- Chessboard with squares and pieces -->
-	<div class="grid grid-cols-8 grid-rows-8 sm:w-full md:w-1/2 aspect-square border-2 border-gray-800">
+	<div
+		class="grid grid-cols-8 grid-rows-8 sm:w-full md:w-1/2 aspect-square border-2 border-gray-800"
+	>
 		{#each board as row, rowIndex}
 			{#each row as piece, colIndex}
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -151,8 +400,9 @@
 			{/each}
 		{/each}
 	</div>
-	<div>
+	<div class=" sm:w-full md:w-1/2 aspect-square border-2 border-gray-800">
 		<!-- Additional content or controls can go here -->
+		<p>{debug}</p>
 	</div>
 </main>
 
