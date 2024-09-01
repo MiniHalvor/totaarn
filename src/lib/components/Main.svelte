@@ -11,7 +11,7 @@
 			<p class="text-base sm:text-lg md:text-xl">
 				Vi er en sjakklubb for <span class="text-violet-400">alle</span> indøkere, enten du kan spillet
 				eller ei. Vi møtes en gang i uken for å spille sjakk og hygge oss. I tillegg arrangerer vi en
-				sjakk-turnering i året, for å kåre indøks beste sjakkspiller.
+				sjakk-turnering i året, for å kåre indøks beste fsjakkspiller.
 			</p>
 
 			<a
@@ -28,4 +28,5 @@
             <img src={"JTT-logo.png"} alt="logo til to tårn" class="object-cover z-[2] max-h-[70vh]"/>
         </div>
 	</section>
+	
 </main>
