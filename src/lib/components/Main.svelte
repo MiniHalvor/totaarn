@@ -16,17 +16,16 @@
 
 			<a
 				class="blueShadow mx-auto lg:mr-auto text-base sm:text-lg md:text-xl poppins relative overflow-hidden px-6 py-3 group rounded-full bg-white text-slate-950"
-			href="#"
-            target="_blank">
+				href="/janusCarlsen"
+			>
 				<div
 					class="absolute top-0 right-full w-full h-full bg-violet-400 opacity-20 group-hover:translate-x-full z-0 duration-200"
 				/>
-				<h4 class="relative z-9">Knapp &rarr;</h4></a
+				<h4 class="relative z-9">Spill sjakk! &rarr;</h4></a
 			>
 		</div>
-        <div class="relative shadow-2xl grid place-items-center">
-            <img src={"JTT-logo.png"} alt="logo til to tårn" class="object-cover z-[2] max-h-[70vh]"/>
-        </div>
+		<div class="relative shadow-2xl grid place-items-center">
+			<img src={'JTT-logo.png'} alt="logo til to tårn" class="object-cover z-[2] max-h-[70vh]" />
+		</div>
 	</section>
-	
 </main>
