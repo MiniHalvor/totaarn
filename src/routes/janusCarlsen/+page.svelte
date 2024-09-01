@@ -132,7 +132,7 @@
 
 <main class="flex flex-row items-center justify-center p-4 h-full">
 	<!-- Chessboard with squares and pieces -->
-	<div class="grid grid-cols-8 grid-rows-8 w-7/12 aspect-square border-2 border-gray-800">
+	<div class="grid grid-cols-8 grid-rows-8 w-1/2 aspect-square border-2 border-gray-800">
 		{#each board as row, rowIndex}
 			{#each row as piece, colIndex}
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
