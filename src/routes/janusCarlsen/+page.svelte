@@ -380,7 +380,7 @@
 	};
 </script>
 
-<main class="flex md:flex-row sm:flex-col items-center justify-center p-4 h-full">
+<main class="flex md:flex-row flex-col items-center justify-center p-4 h-full">
 	<!-- Chessboard with squares and pieces -->
 	<div
 		class="grid grid-cols-8 grid-rows-8 sm:w-full md:w-1/2 aspect-square border-2 border-gray-800"
