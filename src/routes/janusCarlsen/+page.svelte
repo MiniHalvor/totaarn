@@ -43,80 +43,83 @@
 			// Check if the piece is being moved to a different square
 			if (selectedFrom.row !== rowIndex || selectedFrom.col !== colIndex) {
 				// Move the piece to the new location
-				if (selectedPiece.toLowerCase() === 'p') {
-					//hvis det er bonde
-					const pawnDirection = selectedPiece === 'p' ? 1 : -1; // Direction of pawn movement
+				if (
+					!(whitePieces.includes(selectedPiece)
+						? whitePieces.includes(board[rowIndex][colIndex])
+						: blackPieces.includes(board[rowIndex][colIndex]))
+				) {
+					if (selectedPiece.toLowerCase() === 'p') {
+						//hvis det er bonde
+						const pawnDirection = selectedPiece === 'p' ? 1 : -1; // Direction of pawn movement
 
-					const isFirstMove = selectedFrom.row % 5 === 1;
-					const pawnDistance = (rowIndex - selectedFrom.row) * pawnDirection;
-					const pawnIsBlocked =
-						board[selectedFrom.row + 1 * pawnDirection * pawnDistance][selectedFrom.col] != null;
-					const pawnCanStrikeRight =
-						selectedPiece === 'p'
-							? whitePieces.includes(
-									board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col + 1]
-								)
-							: blackPieces.includes(
-									board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col + 1]
-								);
-					const pawnCanStrikeLeft =
-						selectedPiece === 'p'
-							? whitePieces.includes(
-									board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col - 1]
-								)
-							: blackPieces.includes(
-									board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col - 1]
-								);
-					if (
-						((pawnDistance === 2 && isFirstMove) || pawnDistance === 1) &&
-						(colIndex === selectedFrom.col ||
-							(pawnCanStrikeRight && pawnDistance === 1 && colIndex - 1 === selectedFrom.col) ||
-							(pawnCanStrikeLeft && pawnDistance === 1 && colIndex + 1 === selectedFrom.col)) &&
-						(!pawnIsBlocked ||
-							(pawnCanStrikeRight && pawnDistance === 1 && colIndex - 1 === selectedFrom.col) ||
-							(pawnCanStrikeLeft && pawnDistance === 1 && colIndex + 1 === selectedFrom.col))
-					) {
+						const isFirstMove = selectedFrom.row % 5 === 1;
+						const pawnDistance = (rowIndex - selectedFrom.row) * pawnDirection;
+						const pawnIsBlocked =
+							board[selectedFrom.row + 1 * pawnDirection * pawnDistance][selectedFrom.col] != null;
+						const pawnCanStrikeRight =
+							selectedPiece === 'p'
+								? whitePieces.includes(
+										board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col + 1]
+									)
+								: blackPieces.includes(
+										board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col + 1]
+									);
+						const pawnCanStrikeLeft =
+							selectedPiece === 'p'
+								? whitePieces.includes(
+										board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col - 1]
+									)
+								: blackPieces.includes(
+										board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col - 1]
+									);
+						if (
+							((pawnDistance === 2 && isFirstMove) || pawnDistance === 1) &&
+							(colIndex === selectedFrom.col ||
+								(pawnCanStrikeRight && pawnDistance === 1 && colIndex - 1 === selectedFrom.col) ||
+								(pawnCanStrikeLeft && pawnDistance === 1 && colIndex + 1 === selectedFrom.col)) &&
+							(!pawnIsBlocked ||
+								(pawnCanStrikeRight && pawnDistance === 1 && colIndex - 1 === selectedFrom.col) ||
+								(pawnCanStrikeLeft && pawnDistance === 1 && colIndex + 1 === selectedFrom.col))
+						) {
+							board[rowIndex][colIndex] = selectedPiece;
+							board[selectedFrom.row][selectedFrom.col] = null;
+						}
+					} else if (selectedPiece.toLowerCase() === 'r') {
+						//Logikken her er lagd på søvnmangel. Logger ut nå. 02:51.
+
+						// let rookSpaceUp = 0;
+						// const rookSpaceDown = 0;
+						// const rookSpaceLeft = 0;
+						// const rookSpaceRight = 0;
+						// for (let index = selectedFrom.row; index < board[selectedFrom.col].length; index++) {
+						//     const element = board[index][selectedFrom.col];
+						//     if (selectedPiece==='r'){
+						//         if (element===null){
+						//             rookSpaceUp++;
+						//         } else if (whitePieces.includes(element)){
+						//             rookSpaceUp++;
+						//             break;
+						//         }
+						//     } else {
+
+						//     }
+
+						// }
+						board[rowIndex][colIndex] = selectedPiece;
+						board[selectedFrom.row][selectedFrom.col] = null;
+					} else if (selectedPiece.toLowerCase() === 'n') {
+						board[rowIndex][colIndex] = selectedPiece;
+						board[selectedFrom.row][selectedFrom.col] = null;
+					} else if (selectedPiece.toLowerCase() === 'b') {
+						board[rowIndex][colIndex] = selectedPiece;
+						board[selectedFrom.row][selectedFrom.col] = null;
+					} else if (selectedPiece.toLowerCase() === 'q') {
+						board[rowIndex][colIndex] = selectedPiece;
+						board[selectedFrom.row][selectedFrom.col] = null;
+					} else if (selectedPiece.toLowerCase() === 'k') {
 						board[rowIndex][colIndex] = selectedPiece;
 						board[selectedFrom.row][selectedFrom.col] = null;
 					}
-				} else if (selectedPiece.toLowerCase() === 'r') {
-
-
-                    //Logikken her er lagd på søvnmangel. Logger ut nå. 02:51.
-
-                    // let rookSpaceUp = 0;
-                    // const rookSpaceDown = 0;
-                    // const rookSpaceLeft = 0;
-                    // const rookSpaceRight = 0;
-                    // for (let index = selectedFrom.row; index < board[selectedFrom.col].length; index++) {
-                    //     const element = board[index][selectedFrom.col];
-                    //     if (selectedPiece==='r'){
-                    //         if (element===null){
-                    //             rookSpaceUp++;
-                    //         } else if (whitePieces.includes(element)){
-                    //             rookSpaceUp++;
-                    //             break;
-                    //         }
-                    //     } else {
-
-                    //     }
-
-                        
-                    // }
-					board[rowIndex][colIndex] = selectedPiece;
-					board[selectedFrom.row][selectedFrom.col] = null;
-				} else if (selectedPiece.toLowerCase() === 'n') {
-					board[rowIndex][colIndex] = selectedPiece;
-					board[selectedFrom.row][selectedFrom.col] = null;
-				} else if (selectedPiece.toLowerCase() === 'b') {
-					board[rowIndex][colIndex] = selectedPiece;
-					board[selectedFrom.row][selectedFrom.col] = null;
-				} else if (selectedPiece.toLowerCase() === 'q') {
-					board[rowIndex][colIndex] = selectedPiece;
-					board[selectedFrom.row][selectedFrom.col] = null;
-				} else if (selectedPiece.toLowerCase() === 'k') {
-					board[rowIndex][colIndex] = selectedPiece;
-					board[selectedFrom.row][selectedFrom.col] = null;
 				}
 			}
 			// Reset selection
