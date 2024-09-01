@@ -1,5 +1,5 @@
 <script>
-	// Defining the initial state of the board with images
+	// Defining the initial state of the board 
 	const initialBoard = [
 		['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
 		['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
@@ -13,7 +13,7 @@
 	const blackPieces = ['p', 'q', 'k', 'b', 'n', 'r'];
 	const whitePieces = ['P', 'Q', 'K', 'B', 'N', 'R'];
 
-	// Reactive store to hold the current board state
+	// Reactive state, changes as the game progress
 	let board = initialBoard;
 
 	// Mapping pieces to image file paths
@@ -135,7 +135,7 @@
 
 <main class="flex flex-row items-center justify-center p-4 h-full">
 	<!-- Chessboard with squares and pieces -->
-	<div class="grid grid-cols-8 grid-rows-8 w-1/2 aspect-square border-2 border-gray-800">
+	<div class="grid grid-cols-8 grid-rows-8 sm:w-full md:w-1/2 aspect-square border-2 border-gray-800">
 		{#each board as row, rowIndex}
 			{#each row as piece, colIndex}
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
