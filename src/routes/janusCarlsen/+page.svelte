@@ -30,22 +30,36 @@
 		const blackKingExists = flatBoard.includes('k');
 		return whiteKingExists && blackKingExists;
 	}
-	async function startRandomGame() {
-		while (containsKings()) {
-			let rand1 = Math.floor(Math.random() * 8);
-			let rand2 = Math.floor(Math.random() * 8);
-			let rand3 = Math.floor(Math.random() * 8);
-			let rand4 = Math.floor(Math.random() * 8);
-
-			handleSquareClick(rand1, rand2);
-			handleSquareClick(rand3, rand4);
-			await sleep(0.0005);
-		}
-	}
-
-	// Reactive state, changes as the game progress
 	let board = initialBoard;
 	let debug = 'this is for debugging';
+	async function startRandomGame() {
+    while (containsKings()) { // Ensure game continues while both kings are on the board
+        let pieceFound = false;
+        let rand1 = 0, rand2 = 0;
+
+        // Find a non-null piece on the board
+        while (!pieceFound) {
+            rand1 = Math.floor(Math.random() * 8);
+            rand2 = Math.floor(Math.random() * 8);
+            if (board[rand1][rand2] != null) {
+                pieceFound = true; // Break the loop if a piece is found
+            }
+        }
+
+        // Select a random destination
+        let rand3 = Math.floor(Math.random() * 8);
+        let rand4 = Math.floor(Math.random() * 8);
+
+        // Execute moves
+        handleSquareClick(rand1, rand2); // Select the piece
+        handleSquareClick(rand3, rand4); // Try to move to the new location
+
+        // Use a reasonable sleep delay (e.g., 500ms)
+        await sleep(1);
+    }
+}
+
+	// Reactive state, changes as the game progress
 
 	// Mapping pieces to image file paths
 	const pieceSymbols = {
@@ -83,9 +97,6 @@
 				board[selectedFrom.row][selectedFrom.col] = null;
 				changeTurns();
 			}
-
-			
-			
 		}
 		// If a piece is already selected, move it to the new square
 		if (colorToMove.includes(selectedPiece)) {
