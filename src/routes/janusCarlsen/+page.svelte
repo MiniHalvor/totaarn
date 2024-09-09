@@ -1,4 +1,5 @@
 <script>
+	import equal from 'fast-deep-equal';
 	// Defining the initial state of the board
 	const initialBoard = [
 		['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
@@ -54,9 +55,10 @@
 	const whitePieces = ['P', 'Q', 'K', 'B', 'N', 'R'];
 	let colorToMove = whitePieces;
 	let board = initialBoard;
+	let boardHistory = [structuredClone(board)];
 	let debug =
-		'Sjakken er ganske broken nå. Du kan ikke sette seg selv i sjakk, men du trenger ikke bry deg hvis du blir satt i sjakk heller. En passant bør funke, men har ikke testa grundig nok enda. Rokkade er ikke adda enda. De røde bokstavene indikerer hvilke felt som er angrepet av hvit -> W og sort -> B. <br><br> Det jeg mangler er altså:' +
-		'<br>--><s>En passant</s> <br>-->Rokkade <br>-->Arthur 1.1 <br>-->sjakk-matt ';
+		'Begynner å nærme seg noe. Sjakk-matt, patt og remis kommer snart. De røde bokstavene indikerer hvilke felt som er angrepet av hvit -> W og sort -> B. <br><br> Det jeg mangler er altså:' +
+		'<br>--><s>En passant</s> <br>--><s>Rokkade </s><br>-->Arthur 1.1 <br>-->sjakk-matt <br> -->Laste inn stilling fra FEN <br>-->spole frem og tilbake i matchen';
 	// Mapping pieces to image file paths
 	const pieceSymbols = {
 		r: 'black-rook.png',
@@ -76,6 +78,18 @@
 	let selectedPiece = null;
 	let selectedFrom = { row: null, col: null };
 	let pause = false;
+
+	let leftBlackRookHasMoved = false;
+	let leftWhiteRookHasMoved = false;
+	let rightBlackRookHasMoved = false;
+	let rightWhiteRookHasMoved = false;
+
+	let blackKingHasMoved = false;
+	let whiteKingHasMoved = false;
+
+	let gameResult = ' |||||||';
+	let boardHistoryIndex = 0;
+
 	function changeTurns() {
 		if (colorToMove[0] == whitePieces[0]) {
 			colorToMove = blackPieces;
@@ -101,6 +115,7 @@
 			}
 		}
 	}
+	
 	function stopRandomGame() {
 		pause = true;
 	}
@@ -200,7 +215,7 @@
 								break;
 							}
 						}
-						for (let k = j - 1; k > 0; k--) {
+						for (let k = j - 1; k >= 0; k--) {
 							attackedByBlack[i][k] = 1;
 							if (tempBoard[i][k] != null) {
 								if (tempBoard[i][k] === 'K') {
@@ -219,7 +234,7 @@
 								break;
 							}
 						}
-						for (let k = i - 1; k > 0; k--) {
+						for (let k = i - 1; k >= 0; k--) {
 							attackedByBlack[k][j] = 1;
 							if (tempBoard[k][j] != null) {
 								if (tempBoard[k][j] === 'K') {
@@ -236,7 +251,7 @@
 								break;
 							}
 						}
-						for (let k = j - 1; k > 0; k--) {
+						for (let k = j - 1; k >= 0; k--) {
 							attackedByWhite[i][k] = 1;
 							if (tempBoard[i][k] != null && tempBoard[i][k] != 'k') {
 								break;
@@ -248,7 +263,7 @@
 								break;
 							}
 						}
-						for (let k = i - 1; k > 0; k--) {
+						for (let k = i - 1; k >= 0; k--) {
 							attackedByWhite[k][j] = 1;
 							if (tempBoard[k][j] != null && tempBoard[k][j] != 'k') {
 								break;
@@ -465,6 +480,20 @@
 			}
 		}
 	}
+	function goBack() {
+		if (boardHistoryIndex > 0) {
+			boardHistoryIndex--;
+			changeTurns();
+			board = structuredClone(boardHistory[boardHistoryIndex]);
+		}
+	}
+	function goForward() {
+		if (boardHistory.length - 1 > boardHistoryIndex) {
+			boardHistoryIndex++;
+			changeTurns();
+			board = structuredClone(boardHistory[boardHistoryIndex]);
+		}
+	}
 
 	// Function to handle square clicks
 	const handleSquareClick = (rowIndex, colIndex) => {
@@ -514,6 +543,25 @@
 						//hvis en passant
 						board[rowIndex + 1][colIndex] = null;
 					}
+					if (selectedPiece == 'R' && selectedFrom.col == 0) {
+						leftWhiteRookHasMoved = true;
+					}
+					if (selectedPiece == 'R' && selectedFrom.col == 7) {
+						rightWhiteRookHasMoved = true;
+					}
+
+					if (selectedPiece == 'K') {
+						whiteKingHasMoved = true;
+						if (colIndex == 2 && Math.abs(selectedFrom.col - colIndex) == 2) {
+							board[7][0] = null;
+							board[7][3] = 'R';
+						}
+						if (colIndex == 6 && Math.abs(selectedFrom.col - colIndex) == 2) {
+							board[7][7] = null;
+							board[7][5] = 'R';
+						}
+					}
+
 					board[rowIndex][colIndex] = selectedPiece;
 					board[selectedFrom.row][selectedFrom.col] = null;
 
@@ -540,6 +588,23 @@
 						//hvis en passant
 						board[rowIndex - 1][colIndex] = null;
 					}
+					if (selectedPiece == 'r' && selectedFrom.col == 0) {
+						leftBlackRookHasMoved = true;
+					}
+					if (selectedPiece == 'r' && selectedFrom.col == 7) {
+						rightBlackRookHasMoved = true;
+					}
+					if (selectedPiece == 'k') {
+						blackKingHasMoved = true;
+						if (colIndex == 2 && Math.abs(selectedFrom.col - colIndex) == 2) {
+							board[0][0] = null;
+							board[0][3] = 'r';
+						}
+						if (colIndex == 6 && Math.abs(selectedFrom.col - colIndex) == 2) {
+							board[0][7] = null;
+							board[0][5] = 'r';
+						}
+					}
 
 					board[rowIndex][colIndex] = selectedPiece;
 					board[selectedFrom.row][selectedFrom.col] = null;
@@ -549,6 +614,11 @@
 				}
 			}
 			updateStrikeTable(board);
+			if (equal(tempBoard, board)) {
+				boardHistory.push(structuredClone(board));
+				boardHistoryIndex++;
+				console.log(boardHistory);
+			}
 		}
 		function promoteToQueen() {
 			if (selectedPiece === 'p' && rowIndex % 7 === 0) {
@@ -562,9 +632,9 @@
 			// Check if the piece is being moved to a different square
 			if (selectedFrom.row !== rowIndex || selectedFrom.col !== colIndex) {
 				const targetPiece = board[rowIndex][colIndex];
-				if (targetPiece && targetPiece.toLowerCase() === 'k') {
-					console.log('cannot capture king');
-				} else {
+				// if (targetPiece && targetPiece.toLowerCase() === 'k') {
+				// 	console.log('cannot capture king');
+				// } else {
 					if (
 						!(whitePieces.includes(selectedPiece)
 							? whitePieces.includes(board[rowIndex][colIndex])
@@ -1154,10 +1224,65 @@
 								} else if (attackedByBlack[rowIndex][colIndex] == 0) {
 									movePiece();
 								}
+							} else {
+								if (
+									selectedPiece == 'K' &&
+									board[7][5] == null &&
+									board[7][6] == null &&
+									!rightWhiteRookHasMoved &&
+									distance == 2 &&
+									attackedByBlack[7][4] == 0 &&
+									attackedByBlack[7][5] == 0 &&
+									attackedByBlack[7][6] == 0 &&
+									board[7][7] == 'R'
+								) {
+									movePiece();
+								}
+								if (
+									selectedPiece == 'K' &&
+									board[7][1] == null &&
+									board[7][2] == null &&
+									board[7][3] == null &&
+									!leftWhiteRookHasMoved &&
+									distance == 2 &&
+									attackedByBlack[7][2] == 0 &&
+									attackedByBlack[7][3] == 0 &&
+									attackedByBlack[7][4] == 0 &&
+									board[7][0] == 'R'
+								) {
+									movePiece();
+								}
+								if (
+									selectedPiece == 'k' &&
+									board[0][5] == null &&
+									board[0][6] == null &&
+									!rightBlackRookHasMoved &&
+									distance == 2 &&
+									attackedByWhite[0][4] == 0 &&
+									attackedByWhite[0][5] == 0 &&
+									attackedByWhite[0][6] == 0 &&
+									board[0][7] == 'r'
+								) {
+									movePiece();
+								}
+								if (
+									selectedPiece == 'k' &&
+									board[0][1] == null &&
+									board[0][2] == null &&
+									board[0][3] == null &&
+									!leftBlackRookHasMoved &&
+									distance == 2 &&
+									attackedByWhite[0][2] == 0 &&
+									attackedByWhite[0][3] == 0 &&
+									attackedByWhite[0][4] == 0 &&
+									board[0][0] == 'r'
+								) {
+									movePiece();
+								}
 							}
 						}
 					}
-				}
+				
 			}
 			// Reset selection
 			selectedPiece = null;
@@ -1215,7 +1340,16 @@
 			class="bg-blue-500 hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
 			on:click={stopRandomGame}>Pause</button
 		>
+		<button
+			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+			on:click={goBack}>&lt;</button
+		>
+		<button
+			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+			on:click={goForward}>&gt;</button
+		>
 		<p>{@html debug}</p>
+		<h1 class="text-red-600 text-5xl">{gameResult}</h1>
 	</div>
 </main>
 
