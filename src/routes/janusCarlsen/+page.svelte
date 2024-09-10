@@ -56,9 +56,11 @@
 	let colorToMove = whitePieces;
 	let board = initialBoard;
 	let boardHistory = [structuredClone(board)];
-	let debug =
-		'Begynner å nærme seg noe. Sjakk-matt, patt og remis kommer snart. De røde bokstavene indikerer hvilke felt som er angrepet av hvit -> W og sort -> B. <br><br> Det jeg mangler er altså:' +
-		'<br>--><s>En passant</s> <br>--><s>Rokkade </s><br>-->Arthur 1.1 <br>-->sjakk-matt <br> -->Laste inn stilling fra FEN <br>-->spole frem og tilbake i matchen';
+	// let debug =
+	// 	'Begynner å nærme seg noe. Sjakk-matt, patt og remis kommer snart. De røde bokstavene indikerer hvilke felt som er angrepet av hvit -> W og sort -> B. <br><br> Det jeg mangler er altså:' +
+	// 	'<br>--><s>En passant</s> <br>--><s>Rokkade </s><br>-->Arthur 1.1 <br>-->sjakk-matt <br> -->Laste inn stilling fra FEN <br>-->spole frem og tilbake i matchen';
+	let debug= '';
+
 	// Mapping pieces to image file paths
 	const pieceSymbols = {
 		r: 'black-rook.png',
@@ -87,7 +89,8 @@
 	let blackKingHasMoved = false;
 	let whiteKingHasMoved = false;
 
-	let gameResult = ' |||||||';
+	// let gameResult = ' |||||||';
+	let gameResult="";
 	let boardHistoryIndex = 0;
 
 	function changeTurns() {
@@ -115,7 +118,7 @@
 			}
 		}
 	}
-	
+
 	function stopRandomGame() {
 		pause = true;
 	}
@@ -551,14 +554,17 @@
 					}
 
 					if (selectedPiece == 'K') {
-						whiteKingHasMoved = true;
-						if (colIndex == 2 && Math.abs(selectedFrom.col - colIndex) == 2) {
-							board[7][0] = null;
-							board[7][3] = 'R';
-						}
-						if (colIndex == 6 && Math.abs(selectedFrom.col - colIndex) == 2) {
-							board[7][7] = null;
-							board[7][5] = 'R';
+						if (!whiteKingHasMoved) {
+							whiteKingHasMoved = true;
+
+							if (colIndex == 2 && selectedFrom.col == 4) {
+								board[7][0] = null;
+								board[7][3] = 'R';
+							}
+							if (colIndex == 6 && selectedFrom.col == 4) {
+								board[7][7] = null;
+								board[7][5] = 'R';
+							}
 						}
 					}
 
@@ -595,14 +601,16 @@
 						rightBlackRookHasMoved = true;
 					}
 					if (selectedPiece == 'k') {
-						blackKingHasMoved = true;
-						if (colIndex == 2 && Math.abs(selectedFrom.col - colIndex) == 2) {
-							board[0][0] = null;
-							board[0][3] = 'r';
-						}
-						if (colIndex == 6 && Math.abs(selectedFrom.col - colIndex) == 2) {
-							board[0][7] = null;
-							board[0][5] = 'r';
+						if (!blackKingHasMoved) {
+							blackKingHasMoved = true;
+							if (colIndex == 2 && selectedFrom.col == 4) {
+								board[0][0] = null;
+								board[0][3] = 'r';
+							}
+							if (colIndex == 6 && selectedFrom.col == 4) {
+								board[0][7] = null;
+								board[0][5] = 'r';
+							}
 						}
 					}
 
@@ -615,6 +623,9 @@
 			}
 			updateStrikeTable(board);
 			if (equal(tempBoard, board)) {
+				if (boardHistoryIndex!=boardHistory.length-1){
+					boardHistory.slice(0, boardHistoryIndex);
+				}
 				boardHistory.push(structuredClone(board));
 				boardHistoryIndex++;
 				console.log(boardHistory);
@@ -635,654 +646,652 @@
 				// if (targetPiece && targetPiece.toLowerCase() === 'k') {
 				// 	console.log('cannot capture king');
 				// } else {
-					if (
-						!(whitePieces.includes(selectedPiece)
-							? whitePieces.includes(board[rowIndex][colIndex])
-							: blackPieces.includes(board[rowIndex][colIndex]))
-					) {
-						if (selectedPiece.toLowerCase() === 'p') {
-							//if pawn
-							const pawnDirection = selectedPiece === 'p' ? 1 : -1;
+				if (
+					!(whitePieces.includes(selectedPiece)
+						? whitePieces.includes(board[rowIndex][colIndex])
+						: blackPieces.includes(board[rowIndex][colIndex]))
+				) {
+					if (selectedPiece.toLowerCase() === 'p') {
+						//if pawn
+						const pawnDirection = selectedPiece === 'p' ? 1 : -1;
 
-							const isFirstMove = selectedFrom.row % 5 === 1;
-							const pawnDistance = (rowIndex - selectedFrom.row) * pawnDirection;
-							const pawnIsBlocked =
-								board[selectedFrom.row + 1 * pawnDirection * pawnDistance][selectedFrom.col] !=
-								null;
-							const pawnCanStrikeRight =
-								selectedPiece === 'p'
-									? whitePieces.includes(
-											board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col + 1]
-										) ||
-										enPassantBlack[selectedFrom.row + 1 * pawnDirection][selectedFrom.col + 1] == 1
-									: blackPieces.includes(
-											board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col + 1]
-										) ||
-										enPassantWhite[selectedFrom.row + 1 * pawnDirection][selectedFrom.col + 1] == 1;
-							const pawnCanStrikeLeft =
-								selectedPiece === 'p'
-									? whitePieces.includes(
-											board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col - 1]
-										) ||
-										enPassantBlack[selectedFrom.row + 1 * pawnDirection][selectedFrom.col - 1] == 1
-									: blackPieces.includes(
-											board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col - 1]
-										) ||
-										enPassantWhite[selectedFrom.row + 1 * pawnDirection][selectedFrom.col - 1] == 1;
-							if (
-								((pawnDistance === 2 && isFirstMove) || pawnDistance === 1) &&
-								(colIndex === selectedFrom.col ||
-									(pawnCanStrikeRight && pawnDistance === 1 && colIndex - 1 === selectedFrom.col) ||
-									(pawnCanStrikeLeft && pawnDistance === 1 && colIndex + 1 === selectedFrom.col)) &&
-								(!pawnIsBlocked ||
-									(pawnCanStrikeRight && pawnDistance === 1 && colIndex - 1 === selectedFrom.col) ||
-									(pawnCanStrikeLeft && pawnDistance === 1 && colIndex + 1 === selectedFrom.col))
-							) {
-								movePiece();
-							}
-						} else if (selectedPiece.toLowerCase() === 'r') {
-							let maxDistance = 0;
-							let rookDirection =
-								selectedFrom.row === rowIndex
-									? colIndex < selectedFrom.col //if on the same row
-										? 'left'
-										: 'right'
-									: rowIndex < selectedFrom.row //if on the same column
-										? 'up'
-										: 'down';
+						const isFirstMove = selectedFrom.row % 5 === 1;
+						const pawnDistance = (rowIndex - selectedFrom.row) * pawnDirection;
+						const pawnIsBlocked =
+							board[selectedFrom.row + 1 * pawnDirection * pawnDistance][selectedFrom.col] != null;
+						const pawnCanStrikeRight =
+							selectedPiece === 'p'
+								? whitePieces.includes(
+										board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col + 1]
+									) ||
+									enPassantBlack[selectedFrom.row + 1 * pawnDirection][selectedFrom.col + 1] == 1
+								: blackPieces.includes(
+										board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col + 1]
+									) ||
+									enPassantWhite[selectedFrom.row + 1 * pawnDirection][selectedFrom.col + 1] == 1;
+						const pawnCanStrikeLeft =
+							selectedPiece === 'p'
+								? whitePieces.includes(
+										board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col - 1]
+									) ||
+									enPassantBlack[selectedFrom.row + 1 * pawnDirection][selectedFrom.col - 1] == 1
+								: blackPieces.includes(
+										board[selectedFrom.row + 1 * pawnDirection][selectedFrom.col - 1]
+									) ||
+									enPassantWhite[selectedFrom.row + 1 * pawnDirection][selectedFrom.col - 1] == 1;
+						if (
+							((pawnDistance === 2 && isFirstMove) || pawnDistance === 1) &&
+							(colIndex === selectedFrom.col ||
+								(pawnCanStrikeRight && pawnDistance === 1 && colIndex - 1 === selectedFrom.col) ||
+								(pawnCanStrikeLeft && pawnDistance === 1 && colIndex + 1 === selectedFrom.col)) &&
+							(!pawnIsBlocked ||
+								(pawnCanStrikeRight && pawnDistance === 1 && colIndex - 1 === selectedFrom.col) ||
+								(pawnCanStrikeLeft && pawnDistance === 1 && colIndex + 1 === selectedFrom.col))
+						) {
+							movePiece();
+						}
+					} else if (selectedPiece.toLowerCase() === 'r') {
+						let maxDistance = 0;
+						let rookDirection =
+							selectedFrom.row === rowIndex
+								? colIndex < selectedFrom.col //if on the same row
+									? 'left'
+									: 'right'
+								: rowIndex < selectedFrom.row //if on the same column
+									? 'up'
+									: 'down';
 
-							let distance = Math.abs(
-								rowIndex === selectedFrom.row
-									? colIndex - selectedFrom.col
-									: rowIndex - selectedFrom.row
-							);
-							switch (rookDirection) {
-								case 'left':
-									for (let index = selectedFrom.col - 1; index > -1; index--) {
-										const element = board[selectedFrom.row][index];
-										if (element === null) {
-											maxDistance++;
-										}
-										if (
-											selectedPiece === 'r'
-												? whitePieces.includes(element)
-												: blackPieces.includes(element)
-										) {
-											maxDistance++;
-											break;
-										}
-										if (
-											selectedPiece === 'r'
-												? blackPieces.includes(element)
-												: whitePieces.includes(element)
-										) {
-											break;
-										}
-										//debug += element;
+						let distance = Math.abs(
+							rowIndex === selectedFrom.row
+								? colIndex - selectedFrom.col
+								: rowIndex - selectedFrom.row
+						);
+						switch (rookDirection) {
+							case 'left':
+								for (let index = selectedFrom.col - 1; index > -1; index--) {
+									const element = board[selectedFrom.row][index];
+									if (element === null) {
+										maxDistance++;
 									}
-									break;
-								case 'right':
-									for (let index = selectedFrom.col + 1; index < 8; index++) {
-										const element = board[selectedFrom.row][index];
-										if (element === null) {
-											maxDistance++;
-										}
-										if (
-											selectedPiece === 'r'
-												? whitePieces.includes(element)
-												: blackPieces.includes(element)
-										) {
-											maxDistance++;
-											break;
-										}
-										if (
-											selectedPiece === 'r'
-												? blackPieces.includes(element)
-												: whitePieces.includes(element)
-										) {
-											break;
-										}
-										//debug += element;
-									}
-									break;
-								case 'down':
-									for (let index = selectedFrom.row + 1; index < 8; index++) {
-										const element = board[index][selectedFrom.col];
-										if (element === null) {
-											maxDistance++;
-										}
-										if (
-											selectedPiece === 'r'
-												? whitePieces.includes(element)
-												: blackPieces.includes(element)
-										) {
-											maxDistance++;
-											break;
-										}
-										if (
-											selectedPiece === 'r'
-												? blackPieces.includes(element)
-												: whitePieces.includes(element)
-										) {
-											break;
-										}
-										//debug += element;
-									}
-									break;
-								case 'up':
-									for (let index = selectedFrom.row - 1; index > -1; index--) {
-										const element = board[index][selectedFrom.col];
-										if (element === null) {
-											maxDistance++;
-										}
-										if (
-											selectedPiece === 'r'
-												? whitePieces.includes(element)
-												: blackPieces.includes(element)
-										) {
-											maxDistance++;
-											break;
-										}
-										if (
-											selectedPiece === 'r'
-												? blackPieces.includes(element)
-												: whitePieces.includes(element)
-										) {
-											break;
-										}
-										//debug += element;
-									}
-									break;
-
-								default:
-									break;
-							}
-							// debug +=
-							// 	' distance: ' +
-							// 	distance +
-							// 	' max dsitance: ' +
-							// 	maxDistance +
-							// 	' direction: ' +
-							// 	rookDirection; //debugging
-							let sameColOrSameRow = rowIndex === selectedFrom.row || colIndex === selectedFrom.col;
-
-							if (sameColOrSameRow && distance <= maxDistance) {
-								movePiece();
-							}
-						} else if (selectedPiece.toLowerCase() === 'n') {
-							let distanceX = Math.abs(colIndex - selectedFrom.col);
-							let distanceY = Math.abs(rowIndex - selectedFrom.row);
-							let distance = Math.max(distanceX, distanceY);
-
-							if (distance === 2 && distanceX != distanceY && distanceX != 0 && distanceY != 0) {
-								movePiece();
-							}
-						} else if (selectedPiece.toLowerCase() === 'b') {
-							let maxDistance = 0;
-							let bishopDirection =
-								colIndex < selectedFrom.col
-									? rowIndex < selectedFrom.row
-										? 'leftUp'
-										: 'leftDown'
-									: rowIndex < selectedFrom.row
-										? 'rightUp'
-										: 'rightDown';
-
-							let distanceX = Math.abs(colIndex - selectedFrom.col);
-							let distanceY = Math.abs(rowIndex - selectedFrom.row);
-							let distance = Math.max(distanceX, distanceY);
-							switch (bishopDirection) {
-								case 'leftUp':
-									for (
-										let indexRow = selectedFrom.row - 1, indexCol = selectedFrom.col - 1;
-										indexRow > -1 && indexCol > -1;
-										indexRow--, indexCol--
+									if (
+										selectedPiece === 'r'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
 									) {
-										const element = board[indexRow][indexCol];
-										if (element === null) {
-											maxDistance++;
-										} else if (
-											selectedPiece === 'b'
-												? whitePieces.includes(element)
-												: blackPieces.includes(element)
-										) {
-											maxDistance++;
-											break;
-										} else if (
-											selectedPiece === 'b'
-												? blackPieces.includes(element)
-												: whitePieces.includes(element)
-										) {
-											break;
-										}
-										//debug += element;
+										maxDistance++;
+										break;
 									}
-									break;
-								case 'rightUp':
-									for (
-										let indexRow = selectedFrom.row - 1, indexCol = selectedFrom.col + 1;
-										indexRow > -1 && indexCol < 8;
-										indexRow--, indexCol++
+									if (
+										selectedPiece === 'r'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
 									) {
-										const element = board[indexRow][indexCol];
-										if (element === null) {
-											maxDistance++;
-										} else if (
-											selectedPiece === 'b'
-												? whitePieces.includes(element)
-												: blackPieces.includes(element)
-										) {
-											maxDistance++;
-											break;
-										} else if (
-											selectedPiece === 'b'
-												? blackPieces.includes(element)
-												: whitePieces.includes(element)
-										) {
-											break;
-										}
-										//debug += element;
+										break;
 									}
-									break;
-								case 'leftDown':
-									for (
-										let indexRow = selectedFrom.row + 1, indexCol = selectedFrom.col - 1;
-										indexRow < 8 && indexCol > -1;
-										indexRow++, indexCol--
-									) {
-										const element = board[indexRow][indexCol];
-										if (element === null) {
-											maxDistance++;
-										} else if (
-											selectedPiece === 'b'
-												? whitePieces.includes(element)
-												: blackPieces.includes(element)
-										) {
-											maxDistance++;
-											break;
-										} else if (
-											selectedPiece === 'b'
-												? blackPieces.includes(element)
-												: whitePieces.includes(element)
-										) {
-											break;
-										}
-										//debug += element;
-									}
-									break;
-								case 'rightDown':
-									for (
-										let indexRow = selectedFrom.row + 1, indexCol = selectedFrom.col + 1;
-										indexRow < 8 && indexCol < 8;
-										indexRow++, indexCol++
-									) {
-										const element = board[indexRow][indexCol];
-										if (element === null) {
-											maxDistance++;
-										} else if (
-											selectedPiece === 'b'
-												? whitePieces.includes(element)
-												: blackPieces.includes(element)
-										) {
-											maxDistance++;
-											break;
-										} else if (
-											selectedPiece === 'b'
-												? blackPieces.includes(element)
-												: whitePieces.includes(element)
-										) {
-											break;
-										}
-										//debug += element;
-									}
-									break;
-
-								default:
-									break;
-							}
-							// debug +=
-							// 	' distance: ' +
-							// 	distance +
-							// 	' max distance: ' +
-							// 	maxDistance +
-							// 	' direction: ' +
-							// 	bishopDirection; //debugging
-
-							if (distance <= maxDistance && distanceX === distanceY) {
-								movePiece();
-							}
-						} else if (selectedPiece.toLowerCase() === 'q') {
-							let distanceX = Math.abs(colIndex - selectedFrom.col);
-							let distanceY = Math.abs(rowIndex - selectedFrom.row);
-							let distance = Math.max(distanceX, distanceY);
-
-							if (distanceX === distanceY || distanceX === 0 || distanceY === 0) {
-								if (distanceX === distanceY) {
-									let maxDistance = 0;
-									let queenDirection =
-										colIndex < selectedFrom.col
-											? rowIndex < selectedFrom.row
-												? 'leftUp'
-												: 'leftDown'
-											: rowIndex < selectedFrom.row
-												? 'rightUp'
-												: 'rightDown';
-
-									switch (queenDirection) {
-										case 'leftUp':
-											for (
-												let indexRow = selectedFrom.row - 1, indexCol = selectedFrom.col - 1;
-												indexRow > -1 && indexCol > -1;
-												indexRow--, indexCol--
-											) {
-												const element = board[indexRow][indexCol];
-												if (element === null) {
-													maxDistance++;
-												} else if (
-													selectedPiece === 'q'
-														? whitePieces.includes(element)
-														: blackPieces.includes(element)
-												) {
-													maxDistance++;
-													break;
-												} else if (
-													selectedPiece === 'q'
-														? blackPieces.includes(element)
-														: whitePieces.includes(element)
-												) {
-													break;
-												}
-												//debug += element;
-											}
-											break;
-										case 'rightUp':
-											for (
-												let indexRow = selectedFrom.row - 1, indexCol = selectedFrom.col + 1;
-												indexRow > -1 && indexCol < 8;
-												indexRow--, indexCol++
-											) {
-												const element = board[indexRow][indexCol];
-												if (element === null) {
-													maxDistance++;
-												} else if (
-													selectedPiece === 'q'
-														? whitePieces.includes(element)
-														: blackPieces.includes(element)
-												) {
-													maxDistance++;
-													break;
-												} else if (
-													selectedPiece === 'q'
-														? blackPieces.includes(element)
-														: whitePieces.includes(element)
-												) {
-													break;
-												}
-												//debug += element;
-											}
-											break;
-										case 'leftDown':
-											for (
-												let indexRow = selectedFrom.row + 1, indexCol = selectedFrom.col - 1;
-												indexRow < 8 && indexCol > -1;
-												indexRow++, indexCol--
-											) {
-												const element = board[indexRow][indexCol];
-												if (element === null) {
-													maxDistance++;
-												} else if (
-													selectedPiece === 'q'
-														? whitePieces.includes(element)
-														: blackPieces.includes(element)
-												) {
-													maxDistance++;
-													break;
-												} else if (
-													selectedPiece === 'q'
-														? blackPieces.includes(element)
-														: whitePieces.includes(element)
-												) {
-													break;
-												}
-												//debug += element;
-											}
-											break;
-										case 'rightDown':
-											for (
-												let indexRow = selectedFrom.row + 1, indexCol = selectedFrom.col + 1;
-												indexRow < 8 && indexCol < 8;
-												indexRow++, indexCol++
-											) {
-												const element = board[indexRow][indexCol];
-												if (element === null) {
-													maxDistance++;
-												} else if (
-													selectedPiece === 'q'
-														? whitePieces.includes(element)
-														: blackPieces.includes(element)
-												) {
-													maxDistance++;
-													break;
-												} else if (
-													selectedPiece === 'q'
-														? blackPieces.includes(element)
-														: whitePieces.includes(element)
-												) {
-													break;
-												}
-												//debug += element;
-											}
-											break;
-
-										default:
-											break;
-									}
-									// debug +=
-									// 	' distance: ' +
-									// 	distance +
-									// 	' max distance: ' +
-									// 	maxDistance +
-									// 	' direction: ' +
-									// 	queenDirection; //debugging
-
-									if (distance <= maxDistance && distanceX === distanceY) {
-										movePiece();
-									}
-								} else {
-									let maxDistance = 0;
-									let queenDirection =
-										selectedFrom.row === rowIndex
-											? colIndex < selectedFrom.col //if on the same row
-												? 'left'
-												: 'right'
-											: rowIndex < selectedFrom.row //if on the same column
-												? 'up'
-												: 'down';
-
-									switch (queenDirection) {
-										case 'left':
-											for (let index = selectedFrom.col - 1; index > -1; index--) {
-												const element = board[selectedFrom.row][index];
-												if (element === null) {
-													maxDistance++;
-												}
-												if (
-													selectedPiece === 'q'
-														? whitePieces.includes(element)
-														: blackPieces.includes(element)
-												) {
-													maxDistance++;
-													break;
-												}
-												if (
-													selectedPiece === 'q'
-														? blackPieces.includes(element)
-														: whitePieces.includes(element)
-												) {
-													break;
-												}
-												//debug += element;
-											}
-											break;
-										case 'right':
-											for (let index = selectedFrom.col + 1; index < 8; index++) {
-												const element = board[selectedFrom.row][index];
-												if (element === null) {
-													maxDistance++;
-												}
-												if (
-													selectedPiece === 'q'
-														? whitePieces.includes(element)
-														: blackPieces.includes(element)
-												) {
-													maxDistance++;
-													break;
-												}
-												if (
-													selectedPiece === 'q'
-														? blackPieces.includes(element)
-														: whitePieces.includes(element)
-												) {
-													break;
-												}
-												//debug += element;
-											}
-											break;
-										case 'down':
-											for (let index = selectedFrom.row + 1; index < 8; index++) {
-												const element = board[index][selectedFrom.col];
-												if (element === null) {
-													maxDistance++;
-												}
-												if (
-													selectedPiece === 'q'
-														? whitePieces.includes(element)
-														: blackPieces.includes(element)
-												) {
-													maxDistance++;
-													break;
-												}
-												if (
-													selectedPiece === 'q'
-														? blackPieces.includes(element)
-														: whitePieces.includes(element)
-												) {
-													break;
-												}
-												//debug += element;
-											}
-											break;
-										case 'up':
-											for (let index = selectedFrom.row - 1; index > -1; index--) {
-												const element = board[index][selectedFrom.col];
-												if (element === null) {
-													maxDistance++;
-												}
-												if (
-													selectedPiece === 'q'
-														? whitePieces.includes(element)
-														: blackPieces.includes(element)
-												) {
-													maxDistance++;
-													break;
-												}
-												if (
-													selectedPiece === 'q'
-														? blackPieces.includes(element)
-														: whitePieces.includes(element)
-												) {
-													break;
-												}
-												// += element;
-											}
-											break;
-
-										default:
-											break;
-									}
-									// debug +=
-									// 	' distance: ' +
-									// 	distance +
-									// 	' max dsitance: ' +
-									// 	maxDistance +
-									// 	' direction: ' +
-									// 	queenDirection; //debugging
-
-									if (distance <= maxDistance) {
-										movePiece();
-									}
+									//debug += element;
 								}
-							}
-						} else if (selectedPiece.toLowerCase() === 'k') {
-							let distanceX = Math.abs(colIndex - selectedFrom.col);
-							let distanceY = Math.abs(rowIndex - selectedFrom.row);
-							let distance = Math.max(distanceX, distanceY);
+								break;
+							case 'right':
+								for (let index = selectedFrom.col + 1; index < 8; index++) {
+									const element = board[selectedFrom.row][index];
+									if (element === null) {
+										maxDistance++;
+									}
+									if (
+										selectedPiece === 'r'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
+									) {
+										maxDistance++;
+										break;
+									}
+									if (
+										selectedPiece === 'r'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
+									) {
+										break;
+									}
+									//debug += element;
+								}
+								break;
+							case 'down':
+								for (let index = selectedFrom.row + 1; index < 8; index++) {
+									const element = board[index][selectedFrom.col];
+									if (element === null) {
+										maxDistance++;
+									}
+									if (
+										selectedPiece === 'r'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
+									) {
+										maxDistance++;
+										break;
+									}
+									if (
+										selectedPiece === 'r'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
+									) {
+										break;
+									}
+									//debug += element;
+								}
+								break;
+							case 'up':
+								for (let index = selectedFrom.row - 1; index > -1; index--) {
+									const element = board[index][selectedFrom.col];
+									if (element === null) {
+										maxDistance++;
+									}
+									if (
+										selectedPiece === 'r'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
+									) {
+										maxDistance++;
+										break;
+									}
+									if (
+										selectedPiece === 'r'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
+									) {
+										break;
+									}
+									//debug += element;
+								}
+								break;
 
-							if (distance < 2) {
-								if (selectedPiece === 'k' && attackedByWhite[rowIndex][colIndex] == 0) {
-									movePiece();
-								} else if (attackedByBlack[rowIndex][colIndex] == 0) {
+							default:
+								break;
+						}
+						// debug +=
+						// 	' distance: ' +
+						// 	distance +
+						// 	' max dsitance: ' +
+						// 	maxDistance +
+						// 	' direction: ' +
+						// 	rookDirection; //debugging
+						let sameColOrSameRow = rowIndex === selectedFrom.row || colIndex === selectedFrom.col;
+
+						if (sameColOrSameRow && distance <= maxDistance) {
+							movePiece();
+						}
+					} else if (selectedPiece.toLowerCase() === 'n') {
+						let distanceX = Math.abs(colIndex - selectedFrom.col);
+						let distanceY = Math.abs(rowIndex - selectedFrom.row);
+						let distance = Math.max(distanceX, distanceY);
+
+						if (distance === 2 && distanceX != distanceY && distanceX != 0 && distanceY != 0) {
+							movePiece();
+						}
+					} else if (selectedPiece.toLowerCase() === 'b') {
+						let maxDistance = 0;
+						let bishopDirection =
+							colIndex < selectedFrom.col
+								? rowIndex < selectedFrom.row
+									? 'leftUp'
+									: 'leftDown'
+								: rowIndex < selectedFrom.row
+									? 'rightUp'
+									: 'rightDown';
+
+						let distanceX = Math.abs(colIndex - selectedFrom.col);
+						let distanceY = Math.abs(rowIndex - selectedFrom.row);
+						let distance = Math.max(distanceX, distanceY);
+						switch (bishopDirection) {
+							case 'leftUp':
+								for (
+									let indexRow = selectedFrom.row - 1, indexCol = selectedFrom.col - 1;
+									indexRow > -1 && indexCol > -1;
+									indexRow--, indexCol--
+								) {
+									const element = board[indexRow][indexCol];
+									if (element === null) {
+										maxDistance++;
+									} else if (
+										selectedPiece === 'b'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
+									) {
+										maxDistance++;
+										break;
+									} else if (
+										selectedPiece === 'b'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
+									) {
+										break;
+									}
+									//debug += element;
+								}
+								break;
+							case 'rightUp':
+								for (
+									let indexRow = selectedFrom.row - 1, indexCol = selectedFrom.col + 1;
+									indexRow > -1 && indexCol < 8;
+									indexRow--, indexCol++
+								) {
+									const element = board[indexRow][indexCol];
+									if (element === null) {
+										maxDistance++;
+									} else if (
+										selectedPiece === 'b'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
+									) {
+										maxDistance++;
+										break;
+									} else if (
+										selectedPiece === 'b'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
+									) {
+										break;
+									}
+									//debug += element;
+								}
+								break;
+							case 'leftDown':
+								for (
+									let indexRow = selectedFrom.row + 1, indexCol = selectedFrom.col - 1;
+									indexRow < 8 && indexCol > -1;
+									indexRow++, indexCol--
+								) {
+									const element = board[indexRow][indexCol];
+									if (element === null) {
+										maxDistance++;
+									} else if (
+										selectedPiece === 'b'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
+									) {
+										maxDistance++;
+										break;
+									} else if (
+										selectedPiece === 'b'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
+									) {
+										break;
+									}
+									//debug += element;
+								}
+								break;
+							case 'rightDown':
+								for (
+									let indexRow = selectedFrom.row + 1, indexCol = selectedFrom.col + 1;
+									indexRow < 8 && indexCol < 8;
+									indexRow++, indexCol++
+								) {
+									const element = board[indexRow][indexCol];
+									if (element === null) {
+										maxDistance++;
+									} else if (
+										selectedPiece === 'b'
+											? whitePieces.includes(element)
+											: blackPieces.includes(element)
+									) {
+										maxDistance++;
+										break;
+									} else if (
+										selectedPiece === 'b'
+											? blackPieces.includes(element)
+											: whitePieces.includes(element)
+									) {
+										break;
+									}
+									//debug += element;
+								}
+								break;
+
+							default:
+								break;
+						}
+						// debug +=
+						// 	' distance: ' +
+						// 	distance +
+						// 	' max distance: ' +
+						// 	maxDistance +
+						// 	' direction: ' +
+						// 	bishopDirection; //debugging
+
+						if (distance <= maxDistance && distanceX === distanceY) {
+							movePiece();
+						}
+					} else if (selectedPiece.toLowerCase() === 'q') {
+						let distanceX = Math.abs(colIndex - selectedFrom.col);
+						let distanceY = Math.abs(rowIndex - selectedFrom.row);
+						let distance = Math.max(distanceX, distanceY);
+
+						if (distanceX === distanceY || distanceX === 0 || distanceY === 0) {
+							if (distanceX === distanceY) {
+								let maxDistance = 0;
+								let queenDirection =
+									colIndex < selectedFrom.col
+										? rowIndex < selectedFrom.row
+											? 'leftUp'
+											: 'leftDown'
+										: rowIndex < selectedFrom.row
+											? 'rightUp'
+											: 'rightDown';
+
+								switch (queenDirection) {
+									case 'leftUp':
+										for (
+											let indexRow = selectedFrom.row - 1, indexCol = selectedFrom.col - 1;
+											indexRow > -1 && indexCol > -1;
+											indexRow--, indexCol--
+										) {
+											const element = board[indexRow][indexCol];
+											if (element === null) {
+												maxDistance++;
+											} else if (
+												selectedPiece === 'q'
+													? whitePieces.includes(element)
+													: blackPieces.includes(element)
+											) {
+												maxDistance++;
+												break;
+											} else if (
+												selectedPiece === 'q'
+													? blackPieces.includes(element)
+													: whitePieces.includes(element)
+											) {
+												break;
+											}
+											//debug += element;
+										}
+										break;
+									case 'rightUp':
+										for (
+											let indexRow = selectedFrom.row - 1, indexCol = selectedFrom.col + 1;
+											indexRow > -1 && indexCol < 8;
+											indexRow--, indexCol++
+										) {
+											const element = board[indexRow][indexCol];
+											if (element === null) {
+												maxDistance++;
+											} else if (
+												selectedPiece === 'q'
+													? whitePieces.includes(element)
+													: blackPieces.includes(element)
+											) {
+												maxDistance++;
+												break;
+											} else if (
+												selectedPiece === 'q'
+													? blackPieces.includes(element)
+													: whitePieces.includes(element)
+											) {
+												break;
+											}
+											//debug += element;
+										}
+										break;
+									case 'leftDown':
+										for (
+											let indexRow = selectedFrom.row + 1, indexCol = selectedFrom.col - 1;
+											indexRow < 8 && indexCol > -1;
+											indexRow++, indexCol--
+										) {
+											const element = board[indexRow][indexCol];
+											if (element === null) {
+												maxDistance++;
+											} else if (
+												selectedPiece === 'q'
+													? whitePieces.includes(element)
+													: blackPieces.includes(element)
+											) {
+												maxDistance++;
+												break;
+											} else if (
+												selectedPiece === 'q'
+													? blackPieces.includes(element)
+													: whitePieces.includes(element)
+											) {
+												break;
+											}
+											//debug += element;
+										}
+										break;
+									case 'rightDown':
+										for (
+											let indexRow = selectedFrom.row + 1, indexCol = selectedFrom.col + 1;
+											indexRow < 8 && indexCol < 8;
+											indexRow++, indexCol++
+										) {
+											const element = board[indexRow][indexCol];
+											if (element === null) {
+												maxDistance++;
+											} else if (
+												selectedPiece === 'q'
+													? whitePieces.includes(element)
+													: blackPieces.includes(element)
+											) {
+												maxDistance++;
+												break;
+											} else if (
+												selectedPiece === 'q'
+													? blackPieces.includes(element)
+													: whitePieces.includes(element)
+											) {
+												break;
+											}
+											//debug += element;
+										}
+										break;
+
+									default:
+										break;
+								}
+								// debug +=
+								// 	' distance: ' +
+								// 	distance +
+								// 	' max distance: ' +
+								// 	maxDistance +
+								// 	' direction: ' +
+								// 	queenDirection; //debugging
+
+								if (distance <= maxDistance && distanceX === distanceY) {
 									movePiece();
 								}
 							} else {
-								if (
-									selectedPiece == 'K' &&
-									board[7][5] == null &&
-									board[7][6] == null &&
-									!rightWhiteRookHasMoved &&
-									distance == 2 &&
-									attackedByBlack[7][4] == 0 &&
-									attackedByBlack[7][5] == 0 &&
-									attackedByBlack[7][6] == 0 &&
-									board[7][7] == 'R'
-								) {
-									movePiece();
+								let maxDistance = 0;
+								let queenDirection =
+									selectedFrom.row === rowIndex
+										? colIndex < selectedFrom.col //if on the same row
+											? 'left'
+											: 'right'
+										: rowIndex < selectedFrom.row //if on the same column
+											? 'up'
+											: 'down';
+
+								switch (queenDirection) {
+									case 'left':
+										for (let index = selectedFrom.col - 1; index > -1; index--) {
+											const element = board[selectedFrom.row][index];
+											if (element === null) {
+												maxDistance++;
+											}
+											if (
+												selectedPiece === 'q'
+													? whitePieces.includes(element)
+													: blackPieces.includes(element)
+											) {
+												maxDistance++;
+												break;
+											}
+											if (
+												selectedPiece === 'q'
+													? blackPieces.includes(element)
+													: whitePieces.includes(element)
+											) {
+												break;
+											}
+											//debug += element;
+										}
+										break;
+									case 'right':
+										for (let index = selectedFrom.col + 1; index < 8; index++) {
+											const element = board[selectedFrom.row][index];
+											if (element === null) {
+												maxDistance++;
+											}
+											if (
+												selectedPiece === 'q'
+													? whitePieces.includes(element)
+													: blackPieces.includes(element)
+											) {
+												maxDistance++;
+												break;
+											}
+											if (
+												selectedPiece === 'q'
+													? blackPieces.includes(element)
+													: whitePieces.includes(element)
+											) {
+												break;
+											}
+											//debug += element;
+										}
+										break;
+									case 'down':
+										for (let index = selectedFrom.row + 1; index < 8; index++) {
+											const element = board[index][selectedFrom.col];
+											if (element === null) {
+												maxDistance++;
+											}
+											if (
+												selectedPiece === 'q'
+													? whitePieces.includes(element)
+													: blackPieces.includes(element)
+											) {
+												maxDistance++;
+												break;
+											}
+											if (
+												selectedPiece === 'q'
+													? blackPieces.includes(element)
+													: whitePieces.includes(element)
+											) {
+												break;
+											}
+											//debug += element;
+										}
+										break;
+									case 'up':
+										for (let index = selectedFrom.row - 1; index > -1; index--) {
+											const element = board[index][selectedFrom.col];
+											if (element === null) {
+												maxDistance++;
+											}
+											if (
+												selectedPiece === 'q'
+													? whitePieces.includes(element)
+													: blackPieces.includes(element)
+											) {
+												maxDistance++;
+												break;
+											}
+											if (
+												selectedPiece === 'q'
+													? blackPieces.includes(element)
+													: whitePieces.includes(element)
+											) {
+												break;
+											}
+											// += element;
+										}
+										break;
+
+									default:
+										break;
 								}
-								if (
-									selectedPiece == 'K' &&
-									board[7][1] == null &&
-									board[7][2] == null &&
-									board[7][3] == null &&
-									!leftWhiteRookHasMoved &&
-									distance == 2 &&
-									attackedByBlack[7][2] == 0 &&
-									attackedByBlack[7][3] == 0 &&
-									attackedByBlack[7][4] == 0 &&
-									board[7][0] == 'R'
-								) {
-									movePiece();
-								}
-								if (
-									selectedPiece == 'k' &&
-									board[0][5] == null &&
-									board[0][6] == null &&
-									!rightBlackRookHasMoved &&
-									distance == 2 &&
-									attackedByWhite[0][4] == 0 &&
-									attackedByWhite[0][5] == 0 &&
-									attackedByWhite[0][6] == 0 &&
-									board[0][7] == 'r'
-								) {
-									movePiece();
-								}
-								if (
-									selectedPiece == 'k' &&
-									board[0][1] == null &&
-									board[0][2] == null &&
-									board[0][3] == null &&
-									!leftBlackRookHasMoved &&
-									distance == 2 &&
-									attackedByWhite[0][2] == 0 &&
-									attackedByWhite[0][3] == 0 &&
-									attackedByWhite[0][4] == 0 &&
-									board[0][0] == 'r'
-								) {
+								// debug +=
+								// 	' distance: ' +
+								// 	distance +
+								// 	' max dsitance: ' +
+								// 	maxDistance +
+								// 	' direction: ' +
+								// 	queenDirection; //debugging
+
+								if (distance <= maxDistance) {
 									movePiece();
 								}
 							}
 						}
+					} else if (selectedPiece.toLowerCase() === 'k') {
+						let distanceX = Math.abs(colIndex - selectedFrom.col);
+						let distanceY = Math.abs(rowIndex - selectedFrom.row);
+						let distance = Math.max(distanceX, distanceY);
+
+						if (distance < 2) {
+							if (selectedPiece === 'k' && attackedByWhite[rowIndex][colIndex] == 0) {
+								movePiece();
+							} else if (attackedByBlack[rowIndex][colIndex] == 0) {
+								movePiece();
+							}
+						} else {
+							if (
+								selectedPiece == 'K' &&
+								board[7][5] == null &&
+								board[7][6] == null &&
+								!rightWhiteRookHasMoved &&
+								distance == 2 &&
+								attackedByBlack[7][4] == 0 &&
+								attackedByBlack[7][5] == 0 &&
+								attackedByBlack[7][6] == 0 &&
+								board[7][7] == 'R'
+							) {
+								movePiece();
+							}
+							if (
+								selectedPiece == 'K' &&
+								board[7][1] == null &&
+								board[7][2] == null &&
+								board[7][3] == null &&
+								!leftWhiteRookHasMoved &&
+								distance == 2 &&
+								attackedByBlack[7][2] == 0 &&
+								attackedByBlack[7][3] == 0 &&
+								attackedByBlack[7][4] == 0 &&
+								board[7][0] == 'R'
+							) {
+								movePiece();
+							}
+							if (
+								selectedPiece == 'k' &&
+								board[0][5] == null &&
+								board[0][6] == null &&
+								!rightBlackRookHasMoved &&
+								distance == 2 &&
+								attackedByWhite[0][4] == 0 &&
+								attackedByWhite[0][5] == 0 &&
+								attackedByWhite[0][6] == 0 &&
+								board[0][7] == 'r'
+							) {
+								movePiece();
+							}
+							if (
+								selectedPiece == 'k' &&
+								board[0][1] == null &&
+								board[0][2] == null &&
+								board[0][3] == null &&
+								!leftBlackRookHasMoved &&
+								distance == 2 &&
+								attackedByWhite[0][2] == 0 &&
+								attackedByWhite[0][3] == 0 &&
+								attackedByWhite[0][4] == 0 &&
+								board[0][0] == 'r'
+							) {
+								movePiece();
+							}
+						}
 					}
-				
+				}
 			}
 			// Reset selection
 			selectedPiece = null;
@@ -1313,7 +1322,7 @@
 						<img src={`chess-pieces/${pieceSymbols[piece]}`} alt="chess piece" class="piece" />
 					{/if}
 					<!--For å fjerne bokstavene slett det HERFRA til -->
-					<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+					<!-- <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
 						{#if attackedByBlack[rowIndex][colIndex] || attackedByWhite[rowIndex][colIndex]}
 							<span class="text-red-600 text-xl font-bold">
 								{attackedByBlack[rowIndex][colIndex] && attackedByWhite[rowIndex][colIndex]
@@ -1325,7 +1334,7 @@
 											: ''}
 							</span>
 						{/if}
-					</div>
+					</div> -->
 					<!--HIT-->
 				</div>
 			{/each}
@@ -1334,7 +1343,7 @@
 	<div class=" sm:w-full md:w-1/2 aspect-square border-2 border-gray-800">
 		<button
 			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-			on:click={startRandomGame}>Se Arthur spille!</button
+			on:click={startRandomGame}>Simuler parti</button
 		>
 		<button
 			class="bg-blue-500 hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
